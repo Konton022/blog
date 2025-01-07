@@ -24,6 +24,10 @@ class AuthController extends Controller
             'password' => ['required'],
         ]);
 
+        if(!$validatedData){
+            return response()->json(['message' => 'Данные не валидны'], 400);
+        }
+
         // Создаем нового пользователя
         $user = User::create([
             'name' => $validatedData['name'],

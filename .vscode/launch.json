@@ -1,16 +1,18 @@
 {
-    "cwd": "src",
-    // Используйте IntelliSense, чтобы узнать о возможных атрибутах.
-    // Наведите указатель мыши, чтобы просмотреть описания существующих атрибутов.
-    // Для получения дополнительной информации посетите: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        
         {
             "name": "Listen for Xdebug",
             "type": "php",
             "request": "launch",
-            "port": 9003
+            "port": 9003,
+            "pathMappings": {
+                "/var/www/html": "${workspaceRoot}/src"
+            },
+            "environment": {
+                "XDEBUG_CONFIG": "client_host=host.docker.internal remote_enable=1"
+            }
         },
     ]
 }
+
