@@ -9,40 +9,58 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    public function register(Request $request)
-    {
+    public function register(Request $request){
+        // Проверяем наличие пользователя с таким email
+        $existingUser = User::whereEmail($request->email)->first();
+
+        if ($existingUser) {
+            return response()->json(['message' => 'Пользователь с таким email уже существует'], 409); // Код состояния 409 означает конфликт
+        }
+
+        // Валидируем данные
         $validatedData = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'name' => ['required'],
+            'email' => ['required', 'email', 'unique:users' ],
+            'password' => ['required'],
         ]);
 
+        // Создаем нового пользователя
         $user = User::create([
             'name' => $validatedData['name'],
             'email' => $validatedData['email'],
             'password' => Hash::make($validatedData['password']),
         ]);
 
-        $token = $user->createToken('Blog Token')->plainTextToken;
+        // Создаем токен для пользователя
+        $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json(['access_token' => $token]);
     }
 
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-        ]);
+    // Валидируем входящие данные
+    $credentials = $request->validate([
+        'email' => ['required', 'email'],
+        'password' => ['required'],
+    ]);
 
-        if (!Auth::attempt($credentials)) {
-            return response()->json(['message' => 'Unauthorized'], 401);
-        }
+    // Проверяем, существует ли пользователь с указанным email
+    $user = User::where('email', $credentials['email'])->first();
 
-        $user = Auth::user();
-        $token = $user->createToken('Blog Token')->plainTextToken;
+    if (!$user) {
+        return response()->json(['message' => 'Неверный email или пароль'], 401);
+    }
 
-        return response()->json(['token' => $token]);
+    // Пробуем войти с указанными учетными данными
+    if (!Auth::attempt($credentials)) {
+        return response()->json(['message' => 'Неверный email или пароль'], 401);
+    }
+
+    // Если все прошло успешно, создаем токен
+    $token = $user->createToken('auth_token')->plainTextToken;
+
+    return response()->json(['access_token' => $token]);
     }
 
     public function logout(Request $request)
