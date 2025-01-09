@@ -9,10 +9,10 @@ services:
     ports:
       - "8080:80"
     depends_on:
-      - app
+      - php
     container_name: project_nginx
 
-  app:
+  php:
     build:
       context: .
       dockerfile: _docker/app/Dockerfile
@@ -20,6 +20,9 @@ services:
       - ./src/:/var/www
     depends_on:
       - db
+    environment:
+      XDEBUG_CONFIG: "remote_host=host.docker.internal remote_enable=1 remote_autostart=1"
+      EXTRA_HOSTS: "${DOCKER_HOST_IP:-host.docker.internal}:host.docker.internal"
     container_name: project_app
 
   db:

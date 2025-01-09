@@ -7,7 +7,7 @@
             "request": "launch",
             "port": 9003,
             "pathMappings": {
-                "/var/www/html": "${workspaceRoot}/src"
+                "/var/www/": "${workspaceRoot}/src"
             },
             "environment": {
                 "XDEBUG_CONFIG": "client_host=host.docker.internal remote_enable=1"
